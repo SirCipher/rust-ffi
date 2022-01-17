@@ -1,10 +1,15 @@
 package ai.swim;
 
-import java.nio.ByteBuffer;
 
 class FfiTest {
+
+    private static native long initRuntime();
+
+    private static  final long TOKIO_HANDLE;
+
     static {
         System.loadLibrary("ffiproto");
+        TOKIO_HANDLE = initRuntime();
     }
 
     public static void main(String[] args) {
