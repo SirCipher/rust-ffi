@@ -1,15 +1,14 @@
 package ai.swim;
 
-import java.nio.ByteBuffer;
-
 public class ByteWriter {
+
     private final long inner;
 
-    public ByteWriter(int len) {
-        this.inner = ByteWriter.__createWriter(len);
+    public ByteWriter(int capacity) {
+        this.inner = ByteWriter.__createWriter(capacity);
     }
 
-    public void writeAll(ByteBuffer buffer) {
+    public void writeAll(byte[] buffer) {
         ByteWriter.__writeAll(this.inner, buffer);
     }
 
@@ -21,5 +20,6 @@ public class ByteWriter {
 
     private static native int __len(long ptr);
 
-    private static native void __writeAll(long ptr, ByteBuffer buffer);
+    private static native void __writeAll(long ptr, byte[] buffer);
+
 }
