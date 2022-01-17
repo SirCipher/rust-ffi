@@ -4,6 +4,7 @@ package ai.swim;
 class FfiTest {
 
     private static native long initRuntime();
+    private static native long asyncTest();
 
     private static  final long TOKIO_HANDLE;
 
@@ -13,6 +14,8 @@ class FfiTest {
     }
 
     public static void main(String[] args) {
+        asyncTest();
+
         System.out.println("Creating ByteWriter");
 
         ByteWriter byteWriter = new ByteWriter(8);
