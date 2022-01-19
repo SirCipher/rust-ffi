@@ -4,9 +4,10 @@ package ai.swim;
 class FfiTest {
 
     private static native long initRuntime();
+
     private static native long asyncTest();
 
-    private static  final long TOKIO_HANDLE;
+    private static final long TOKIO_HANDLE;
 
     static {
         System.loadLibrary("ffiproto");
@@ -14,15 +15,20 @@ class FfiTest {
     }
 
     public static void main(String[] args) {
-        asyncTest();
+//        asyncTest();
+//
+//        System.out.println("Creating ByteWriter");
+//
+//        ByteWriter byteWriter = new ByteWriter(8);
+//        System.out.println("ByteWriter len: " + byteWriter.len());
+//
+//        byteWriter.writeAll(new byte[] {0, 1, 2});
+//
+//        System.out.println("ByteWriter len: " + byteWriter.len());
 
-        System.out.println("Creating ByteWriter");
-
-        ByteWriter byteWriter = new ByteWriter(8);
-        System.out.println("ByteWriter len: " + byteWriter.len());
-
-        byteWriter.writeAll(new byte []{0,1,2});
-
-        System.out.println("ByteWriter len: " + byteWriter.len());
+        RustByteChannel channel = RustByteChannel.create();
+        RustByteReader reader = channel.reader;
+        RustByteWriter writer = channel.writer;
     }
+
 }

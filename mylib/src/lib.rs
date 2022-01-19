@@ -1,8 +1,12 @@
 #![allow(warnings)]
 
-use jni::objects::JClass;
+use crate::utils::byte_channel::byte_channel;
+use jni::objects::{JClass, JObject, JValue};
+use jni::sys::{jlong, jobject};
 use jni::JNIEnv;
 use std::cell::RefCell;
+use std::num::NonZeroUsize;
+use std::ops::Deref;
 use tokio::runtime::{Handle, Runtime};
 
 mod buf;
@@ -42,4 +46,48 @@ pub extern "system" fn Java_ai_swim_FfiTest_asyncTest(_env: JNIEnv, _class: JCla
     handle.block_on(async move {
         println!("Hello from tokio");
     });
+}
+
+fn into_handle<T: 'static>(t: T) -> jlong {
+    Box::into_raw(Box::new(t)) as jlong
+}
+
+#[no_mangle]
+pub extern "system" fn Java_ai_swim_RustByteChannel_create<'a>(
+    env: JNIEnv<'a>,
+    _class: JClass,
+) -> JObject<'a> {
+    let (tx, rx) = byte_channel(NonZeroUsize::new(8).unwrap());
+    let tx = into_handle(tx);
+    let rx = into_handle(rx);
+
+    let reader = env
+        .new_object("ai/swim/RustByteReader", "(J)V", &[rx.into()])
+        .unwrap();
+    let writer = env
+        .new_object("ai/swim/RustByteReader", "(J)V", &[tx.into()])
+        .unwrap();
+
+    let r = env.new_object(
+        "ai/swim/RustByteChannel",
+        "(Lai/swim/RustByteReader;Lai/swim/RustByteWriter;)V",
+        &[reader.into(), writer.into()],
+    );
+    match r {
+        Ok(obj) => obj,
+        Err(e) => {
+            eprintln!("{:?}", e);
+            env.exception_describe();
+            panic!()
+        }
+    }
+}
+
+#[no_mangle]
+pub extern "system" fn Java_ai_swim_ByteWriter__1_1len(
+    _env: JNIEnv,
+    _class: JClass,
+    ptr: *mut ByteWriter,
+) -> jint {
+    unsafe { (&*ptr).len().into() }
 }
